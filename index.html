@@ -9,7 +9,7 @@
 
       <style>
             .jumbotron {
-                  width: 420px;
+                  width: 600px;
                   text-align: center;
                   margin-top: 40px;
                   margin-left: auto;
@@ -41,26 +41,29 @@
       <div class="jumbotron">
             <!-- <h4 ng-bind="app"></h4> -->
             <h3 class="titulo">{{app}}</h3>
-            <table ng-show="contatos.length > 0" class="table">
+            <input class="form-control" type="text" ng-model="criterioDeBusca" placeholder="O que voce busca?">
+            <table ng-show="contatos.length > 0" class="table table">
                   <tr>
                         <th></th>
-                        <th>Nome</th>
-                        <th>Telefone</th>
+                        <th><a href="" ng-click="ordenarPor('nome')"></a>Nome</th>
+                        <th><a href="" ng-click="ordenarPor('telefone')"></a>Telefone</th>
                         <th>Operadora</th>
+                        <th>Data</th>
                         <th></th>
                   </tr>
-                  <tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
+                  <tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos | filter:{nome: criterioDeBusca | oderBy:criterioDeOrdenacao:direcaoDaOrdenacao}">
                         <td><input type="checkbox" ng-model="contato.selecionado"/></td>
-                        <td>{{contato.nome}}</td>
+                        <td>{{contato.nome | uppercase}}</td>
                         <td>{{contato.telefone}}</td>
                         <td>{{contato.operadora.nome}}</td>
+                        <td>{{ contato.data | date:'dd/MM/yyyy HH:mm'}}</td>
                         <td><div style="width: 20px; height: 20px;" ng-style="{'background-color': contato.cor}"></div></td>
                   </tr>
             </table>
             <!-- {{contatos}} -->
             <hr>
-            <input class="form-control" type="text" ng-model="contato.nome" placeholder="Nome"/>
-            <input class="form-control" type="text" ng-model="contato.telefone" placeholder="Telefone"/>
+            <input class="form-control" type="text" ng-model="contato.nome" placeholder="Nome" ng-required="true" ng-minlength="10"/>
+            <input class="form-control" type="text" ng-model="contato.telefone" placeholder="Telefone" ng-required="true" ng-parttern="/^\d{4,5}-\d{4}$/"/>
             <select class="form-control" ng-model="contato.operadora" ng-options="operadora.nome group by operadora.categoria for operadora in operadoras">
                   <option value="">Selecione uma operadora</option>
             </select>
@@ -76,9 +79,9 @@
       angular.module("listaTelefonica").controller("listaTelefonicaCtrl", function ($scope) {
             $scope.app = "Lista Telefonica";
             $scope.contatos = [
-                  {nome: "Pedro", telefone: "999999999", cor: "blue"},
-                  {nome: "Ana", telefone: "888888888", cor: "yellow"},
-                  {nome: "Maria", telefone: "777777777", cor: "red"}
+                  {nome: "Pedro", telefone: "999999999", data: new Date(), cor: "blue"},
+                  {nome: "Ana", telefone: "888888888", data: new Date(), cor: "yellow"},
+                  {nome: "Maria", telefone: "777777777", data: new Date(), cor: "red"}
             ];
             $scope.operadoras = [
                   { nome: 'Oi', codigo: 14, categoria: 'Celular' },
@@ -91,6 +94,7 @@
             $scope.adicionarContato = function (contato) {
                   $scope.contatos.push(angular.copy(contato));
                   delete $scope.contato;
+                  $scope.contatoForm.$setPristine();
             };
             $scope.apagarContatos = function(contatos) {
                   $scope.contatos = contatos.filter(function (contato) {
@@ -101,6 +105,10 @@
                   return contatos.some(function (contato) {
                         return contato.selecionado;
                   })
+            }
+            $scope.odernarPor = function (campo) {
+                  $scope.criterioDeOrdenação = campo;
+                  $scope.direcaoDaOrdenacao = !$scope.direcaoDaOrdenacao;
             }
       });
 
